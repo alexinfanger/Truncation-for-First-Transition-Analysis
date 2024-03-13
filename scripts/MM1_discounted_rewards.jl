@@ -1,5 +1,9 @@
 
 # Model
+println("----------------------------------------")
+println("M/M/1 Discounted Rewards")
+println("----------------------------------------")
+
 ld = 0.9
 mu = 1.0
 discount = 0.1
@@ -52,13 +56,13 @@ Aidx_approx = collect(1:81)
 Acidx_approx = setdiff(Sidx, Aidx_approx)
 
 println("Confirm various reference solutions are in agreement:")
-println(norm(u_reference[Aidx_approx]-u_ref2[Aidx_approx],Inf))
-println(norm(u_reference[Aidx_approx]-u_ref_closed_form[Aidx_approx],Inf))
-println(norm(u_ref_closed_form[Aidx_approx]-u_ref2[Aidx_approx],Inf))
+println(norm((u_reference[Aidx_approx]-u_ref2[Aidx_approx])./(u_reference[Aidx_approx]),Inf))
+println(norm((u_reference[Aidx_approx]-u_ref_closed_form[Aidx_approx])./
+                                              (u_ref_closed_form[Aidx_approx]),Inf))
+println(norm((u_ref_closed_form[Aidx_approx]-u_ref2[Aidx_approx])./
+                                              (u_ref_closed_form[Aidx_approx]),Inf))
 
 # Approximation
-
-
 u_l = fta_lb(G, Aidx_approx, f)
 u_u = fta_ub_complete(G, Aidx_approx, Acidx_approx, f, g_S)
 
@@ -116,6 +120,8 @@ rel_err_gaps_upper = zeros(length(tvals))
 A_0 = get_linear_sublevel_set(vss, tvals[1])
 
 for (i,t_i) in enumerate(tvals)
+  println("----------------------------------------")
+  println("t_i:   ", t_i-1, "  ")
     
   Aidx_i = collect(1:t_i)
   Acidx_i = setdiff(Sidx, Aidx_i)
@@ -124,17 +130,17 @@ for (i,t_i) in enumerate(tvals)
   u_u_i = fta_ub_complete(G, Aidx_i, Acidx_i, f, g_S)
 
   println("Test: Confirming reference solutions are in agreement with simple truncation:")
-  println(norm(u_reference[Aidx_i]-u_ref2[Aidx_i],Inf))
-  println(norm(u_reference[Aidx_i]-u_ref_closed_form[Aidx_i],Inf))
-  println(norm(u_ref_closed_form[Aidx_i]-u_ref2[Aidx_i],Inf))
+  println(norm((u_reference[Aidx_i]-u_ref2[Aidx_i])./u_reference[Aidx_i],Inf))
+  println(norm((u_reference[Aidx_i]-u_ref_closed_form[Aidx_i])/(u_ref_closed_form[Aidx_i]),Inf))
+  println(norm((u_ref_closed_form[Aidx_i]-u_ref2[Aidx_i])/u_ref_closed_form[Aidx_i],Inf))
 
-  rel_err_gap_lower = Aidx_to_Sidx(vss, (u_ref_closed_form[Aidx_i]-u_l_i)./
+  rel_err_gap_lower_i = Aidx_to_Sidx(vss, (u_ref_closed_form[Aidx_i]-u_l_i)./
                                    u_ref_closed_form[Aidx_i], Aidx_i)
-  rel_err_gap_upper = Aidx_to_Sidx(vss, (u_u_i-u_ref_closed_form[Aidx_i])./
+  rel_err_gap_upper_i = Aidx_to_Sidx(vss, (u_u_i-u_ref_closed_form[Aidx_i])./
                                    u_ref_closed_form[Aidx_i], Aidx_i)
 
-  rel_err_gaps_lower[i] = norm(rel_err_gap_lower[A_0], Inf)
-  rel_err_gaps_upper[i] = norm(rel_err_gap_upper[A_0], Inf)
+  rel_err_gaps_lower[i] = norm(rel_err_gap_lower_i[A_0], Inf)
+  rel_err_gaps_upper[i] = norm(rel_err_gap_upper_i[A_0], Inf)
 end
 
 p_convergence = plot(tvals.-1, log10.(rel_err_gaps_lower), 
